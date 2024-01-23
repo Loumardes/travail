@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import numpy as np
 
 path = "C:\\Users\\Louis GLANDIERES\\Documents\\stages\\Alstom\\travail"
 filename = "test.ods"
@@ -7,7 +8,11 @@ filename = "test.ods"
 df = pd.read_excel(path+"\\"+filename)
 
 
+print(df.loc[1])
+print(df.loc[1]["motif"])
 
+print(df.loc[1]["motif"] == None)
+print(type(df.loc[1]["motif"]))
 
 check_for_nan = df['motif'].isnull()
 print (check_for_nan)

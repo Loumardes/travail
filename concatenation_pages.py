@@ -2,10 +2,11 @@ import pandas as pd
 
 path = "C:\\Users\\Louis GLANDIERES\\Documents\\stages\\Alstom\\travail"
 #filename = "test.ods"
-filename = "Historico disponibilidad y km.xlsx"
+#filename = "Historico disponibilidad y km.xlsx"
+filename = "Madrid Analysed Test.ods"
 
-parsed_pages = ['2019', '2020', '2021', '2022', '2023']
-test_pages = ["a", "b"]
+parsed_pages = ['2019']#, '2020', '2021', '2022', '2023']
+filtered_column = "responsible entity"
 
 def read_page(file=path+"\\"+filename, page=""):
   df = pd.read_excel(file, page)
@@ -26,12 +27,15 @@ def export(df, filename):
     data.close()
 
 df_list = []
+print("opening spreadsheet")
 for x in parsed_pages:
     df_list.append(read_page(page=x))
-    remove_empty_rows(df_list[-1], "Clasificación BT")
+    remove_empty_rows(df_list[-1], filtered_column)
     print("read page "+x)
 
+print("concatenating")
 df = pd.concat(df_list)
+print("exporting")
 export(df, "madrid_concaténé.ods")
 
 
