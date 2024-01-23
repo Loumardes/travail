@@ -10,6 +10,7 @@
 import numpy as np
 import pandas as pd
 from datetime import * 
+import json
 
 import spreadsheet_reader as sr
 
@@ -19,6 +20,13 @@ path = "C:\\Users\\Louis GLANDIERES\\Documents\\stages\\Alstom\\travail"
 filename = "Historico disponibilidad y km.xlsx"
 
 parsed_pages = ['2019', '2020']#, '2021', '2022', '2023']
+
+with open('config.json') as configFile:
+    configData = json.load(configFile)
+
+column_name = configData["columns"]
+
+print(column_name["event_start"])
 
 
 # todo delay for error types
@@ -38,14 +46,14 @@ def find_matching_TrainError(row):
     
 
     #print("cycle errors")
-    event_time = datetime.combine(row["Fecha"], row["Hora Inicio"])
+    event_time = datetime.combine(row[column_name["date"]], row[column_name["event_start"]])
     for x in range(len(activeTrainErrors)-1, -1, -1) :
         #print(row["Hora Inicio"], row["Clasificación BT"], row["Convoy"])
               
 
         if ((event_time - activeTrainErrors[x].end) < timedelta(hours=1) and 
-            activeTrainErrors[x].type == row["Clasificación BT"] and
-            (row["TrainNull"] or activeTrainErrors[x].train == row["Convoy"])):
+            activeTrainErrors[x].type == row[column_name["error_type"]] and
+            (row["TrainNull"] or activeTrainErrors[x].train == row[column_name["train"]])):
             return activeTrainErrors[x]
         
         elif (activeTrainErrors[x].end - event_time) > timedelta(hours=1):
@@ -69,10 +77,10 @@ sr.export(df, "page_group_test.ods")
 """
 
 df = sr.read_page(path+"\\"+filename, page='2023')
-df = sr.remove_empty_rows(df, "Clasificación BT")
+df = sr.remove_empty_rows(df, column_name["error_type"])
 
 # add a column for wether or not the error contains a train
-df["TrainNull"] = df['Convoy'].isnull()
+df["TrainNull"] = df[column_name["train"]].isnull()
 
 for x in df.index:
     row = df.loc[x]
@@ -80,14 +88,14 @@ for x in df.index:
     #print(row["Fecha"], row["Hora Final"])
 
 
-    start_time = datetime.combine(row["Fecha"], row["Hora Inicio"])
-    end_time = datetime.combine(row["Fecha"], row["Hora Final"])
+    start_time = datetime.combine(row[column_name["date"]], row[column_name["event_start"]])
+    end_time = datetime.combine(row[column_name["date"]], row[column_name["event_end"]])
 
     matching_TrainError = find_matching_TrainError(row)
     if matching_TrainError:
         matching_TrainError.end = end_time
     else :    
-        activeTrainErrors.append(TrainError(row["Clasificación BT"], start_time, end_time, train=row["Convoy"]))
+        activeTrainErrors.append(TrainError(row[column_name["error_type"]], start_time, end_time, train=row[column_name["train"]]))
         trainErrors.append(activeTrainErrors[-1])
 
 

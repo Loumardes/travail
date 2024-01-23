@@ -1,0 +1,9 @@
+{
+    "columns": {
+        "event_start" : "Hora Inicio",
+        "event_end" : "Hora Final",
+        "date" : "Fecha",
+        "error_type" : "Clasificaci\u00f3n BT",
+        "train" : "Convoy"
+    }
+}
